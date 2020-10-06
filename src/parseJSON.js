@@ -8,6 +8,7 @@ var parseJSON = function(json) {
   const parse = function() {
     // Check the "type" of json, Keep going until hitting a comma
     let results;
+    stripWhiteSpace();
     // End / Edge case
     if (!globalJSON.length) {
       return results;
@@ -36,7 +37,7 @@ var parseJSON = function(json) {
     if (globalJSON[0] === ',') {
       globalJSON = globalJSON.slice(1);
     }
-
+    stripWhiteSpace();
     return results;
     // Include reviver (last step)
   };
@@ -79,17 +80,34 @@ var parseJSON = function(json) {
   const parseArray = function() {
     let result = [];
     globalJSON = globalJSON.slice(1);
-    for (let i = 0; i < globalJSON.length; i++) {
-      if (globalJSON[i] = ']') {
-        globalJSON = globalJSON.slice(1);
-        return result;
-      }
+    while (globalJSON[0] !== ']') {
       result.push(parse());
     }
+    globalJSON = globalJSON.slice(1);
+    return result;
   };
 
   const parseObject = function() {
+    let result = {};
+    globalJSON = globalJSON.slice(1);
+    while (globalJSON[0] !== '}') {
+      result[parseKey()] = parse();
+    }
+    globalJSON = globalJSON.slice(1);
+    return result;
+  };
 
+  const parseKey = function() {
+    let result = parseString();
+    // strip semi-colon
+    globalJSON = globalJSON.slice(1);
+    return result;
+  };
+
+  const stripWhiteSpace = function() {
+    while (globalJSON[0] === ' ') {
+      globalJSON = globalJSON.slice(1);
+    }
   };
 
   return parse();
