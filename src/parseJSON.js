@@ -4,54 +4,93 @@
 // but you're not, so you'll write it from scratch
 var parseJSON = function(json) {
   let globalJSON = json;
-  let result;
 
   const parse = function() {
     // Check the "type" of json, Keep going until hitting a comma
+    let results;
+    // End / Edge case
+    if (!globalJSON.length) {
+      return results;
+    }
     // Number
     if (typeof globalJSON[0] === 'number') {
-      parseNumber();
+      results = parseNumber();
     }
     // Letters (t = true, f = false, n = null)
-    if (globalJSON[0] === 't' || globalJSON[0] === 'f' || globalJSON[0] === 'n') {
-      parseLetter();
+    else if (globalJSON[0] === 't' || globalJSON[0] === 'f' || globalJSON[0] === 'n') {
+      results = parseLetter();
     }
     // String "" make sure parse isn't triggered on tokens inside strings
-    if (globalJSON[0] === '"') {
-      parseString();
+    else if (globalJSON[0] === '"') {
+      results = parseString();
     }
     // Array []
-    if (globalJSON[0] === '[') {
-      parseArray();
+    else if (globalJSON[0] === '[') {
+      results = parseArray();
     }
     // Object {}
-    if (globalJSON[0] === '{') {
-      parseObject();
+    else if (globalJSON[0] === '{') {
+      results = parseObject();
     }
+
+    if (globalJSON[0] === ',') {
+      globalJSON = globalJSON.slice(1);
+    }
+
+    return results;
     // Include reviver (last step)
   };
 
   const parseNumber = function() {
-
+    let result;
+    for (let i = 0; i < globalJSON.length; i++) {
+      if (typeof globalJSON[i] !== 'number') {
+        result = parseInt(globalJSON.slice(0, i));
+        globalJSON = globalJSON.slice(i);
+      }
+    }
+    return result;
   };
 
   const parseLetter = function() {
-
+    if (globalJSON[0] === 't') {
+      globalJSON = globalJSON.slice(4);
+      return true;
+    } else if (globalJSON[0] === 'f') {
+      globalJSON = globalJSON.slice(5);
+      return false;
+    } else {
+      globalJSON = globalJSON.slice(4);
+      return null;
+    }
   };
 
   const parseString = function() {
-
+    let result;
+    for (let i = 1; i < globalJSON.length; i++) {
+      if (typeof globalJSON[i] === '"') {
+        result = globalJSON.slice(0, i + 1);
+        globalJSON = globalJSON.slice(i + 1);
+      }
+    }
+    return result;
   };
 
   const parseArray = function() {
-
+    let result = [];
+    globalJSON = globalJSON.slice(1);
+    for (let i = 0; i < globalJSON.length; i++) {
+      if (globalJSON[i] = ']') {
+        globalJSON = globalJSON.slice(1);
+        return result;
+      }
+      result.push(parse());
+    }
   };
 
   const parseObject = function() {
 
   };
 
-  parse();
-  return result;
+  return parse();
 };
-
